@@ -55,8 +55,14 @@ function CharacterStats(attr) {
 }
 
 CharacterStats.prototype = Object.create(GameObject.prototype);
-CharacterStats.prototype.takeDamage = function() {
-  return `${this.name} took damage.`;
+
+/* updated for stretch */
+CharacterStats.prototype.takeDamage = function(damage) {
+  this.healthPoints -= damage;
+  if(this.healthPoints <= 0) {
+    return `Critical damage! ` + this.destroy();
+  } else
+    return `${this.name} took damage. Health remaining: ${this.healthPoints}`;
 };
 
 function Humanoid(attr) {
@@ -123,7 +129,7 @@ console.log(swordsman.team); // The Round Table
 console.log(mage.weapons); // Staff of Shamalama
 console.log(archer.language); // Elvish
 console.log(archer.greet()); // Lilith offers a greeting in Elvish.
-console.log(mage.takeDamage()); // Bruce took damage.
+console.log(mage.takeDamage(5)); // Bruce took damage.
 console.log(swordsman.destroy()); // Sir Mustachio was removed from the game.
 
 // Stretch task:
@@ -131,14 +137,81 @@ console.log(swordsman.destroy()); // Sir Mustachio was removed from the game.
 // * Give the Hero and Villains different methods that could be used to remove health points from objects which could result in destruction if health gets to 0 or drops below 0;
 // * Create two new objects, one a villain and one a hero and fight it out with methods!
 
+/****************
+ * The takeDamage() method has been updated above for optimal implementation of this stretch 
+ * 
+*/
+
 function Villain(attr) {
   Humanoid.call(this, attr);
+  //this.super();
+  
+  this.spitPotionAt = function (target){
+    console.log(`${this.name} spit potion at ${target.name}!`);
+    return target.takeDamage(5);
+  }
+  this.castSpellOn = function(target){
+    console.log(`${this.name} cast a spell on ${target.name}!`);
+    //regenerates health when this attack is used
+    this.healthPoints += 1;
+    return target.takeDamage(3);
+  }
 }
 
 Villain.prototype = Object.create(Humanoid.prototype);
 
 function Hero(attr) {
   Humanoid.call(this, attr);
+  //this.super();
+
+  this.swordStab = function (target){
+    console.log(`${this.name} stabbed ${target.name} with a sword!`);
+    return target.takeDamage(6);
+  }
+  this.airstrike = function (target) {
+    console.log(`${this.name} launched an airstrike on ${target.name}!`);
+    this.healthPoints += 2;
+    return target.takeDamage(2);
+  }
 }
 
 Hero.prototype = Object.create(Humanoid.prototype);
+
+const houdini = new Villain({
+  createdAt: new Date(),
+  dimensions: {
+    length: 2,
+    width: 1,
+    height: 1
+  },
+  healthPoints: 15,
+  name: "Houdini",
+  team: "Leeches",
+  weapons: ["Annoying words"],
+  language: "Basic Tongue"
+});
+
+const momoney = new Hero({
+  createdAt: new Date(),
+  dimensions: {
+    length: 2,
+    width: 1,
+    height: 2
+  },
+  healthPoints: 18,
+  name: "Mo Money",
+  team: "Seeds",
+  weapons: ["JavaScript code"],
+  language: "Full-Stack Tongue"
+});
+
+console.log(houdini.spitPotionAt(momoney));
+console.log(momoney.airstrike(houdini));
+console.log(houdini.castSpellOn(momoney));
+console.log(momoney.swordStab(houdini));
+console.log(houdini.castSpellOn(momoney));
+console.log(momoney.swordStab(houdini));
+console.log(houdini.spitPotionAt(momoney));
+console.log(momoney.airstrike(houdini));
+console.log(houdini.castSpellOn(momoney));
+console.log(momoney.airstrike(houdini));
